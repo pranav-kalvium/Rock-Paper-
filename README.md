@@ -1,3 +1,5 @@
+[ BEFORE STARTING PLEASE PUT ALL THE MP3 FILES IN A FOLDER NAMET ASSETS ]
+
 A responsive 5-round Rock Paper Scissors game built with HTML, CSS, and JavaScript.
 
 Features
@@ -68,4 +70,5 @@ The game was developed using GitHub Copilot with the following prompts:
 "Make the design responsive for mobile devices"
 
 License
+
 This project is open source and available under the MIT License.
