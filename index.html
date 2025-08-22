@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Rock Paper Scissors</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #0a1929 0%, #1a3a5f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            color: #e0f7fa;
+            position: relative;
+        }
+
+        /* Night sky with stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* Shooting stars */
+        .shooting-star {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            animation: shooting 3s infinite;
+        }
+
+        @keyframes shooting {
+            0% {
+                transform: translateX(-100px) translateY(0) rotate(45deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px)) translateY(calc(100vh + 100px)) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            background: rgba(13, 43, 72, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 150, 255, 0.6);
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            z-index: 1;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent, 
+                rgba(100, 181, 246, 0.1), 
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 8s infinite;
+            z-index: -1;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -50%;
+            }
+            20% {
+                left: 100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        h1 {
+            color: #bb86fc;
+            margin-bottom: 20px;
+            font-size: 2.8rem;
+            text-shadow: 0 0 15px rgba(187, 134, 252, 0.7);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            font-size: 1.3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .score {
+            background: linear-gradient(145deg, #1e3b64, #122e57);
+            color: #e0f7fa;
+            padding: 15px 25px;
+            border-radius: 12px;
+            min-width: 120px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            border: 1px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .score:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(100, 181, 246, 0.4);
+        }
+
+        .round-info {
+            font-size: 1.6rem;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #64b5f6;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(100, 181, 246, 0.5);
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .choice {
+            background: linear-gradient(145deg, #1e3b64, #122e57);
+            border: 3px solid #64b5f6;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #64b5f6, #bb86fc, #64b5f6);
+            z-index: -1;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .choice:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 12px 30px rgba(100, 181, 246, 0.5);
+        }
+
+        .choice:hover::before {
+            opacity: 0.4;
+            animation: glow 1.5s infinite;
+        }
+
+        @keyframes glow {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+        }
+
+        .choice.selected {
+            border-color: #4db6ac;
+            background: linear-gradient(145deg, #1e3b64, #122e57);
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(77, 182, 172, 0.6);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 15px rgba(77, 182, 172, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(77, 182, 172, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(77, 182, 172, 0.6);
+            }
+        }
+
+        .moves-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .move-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(13, 43, 72, 0.7);
+            width: 45%;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            border: 1px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .move-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(100, 181, 246, 0.3);
+        }
+
+        .move-title {
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 8px rgba(100, 181, 246, 0.4);
+        }
+
+        .move-icon {
+            font-size: 4rem;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+            text-shadow: 0 0 15px rgba(187, 134, 252, 0.7);
+        }
+
+        .player-move {
+            animation: playerMove 0.7s ease-out;
+        }
+
+        @keyframes playerMove {
+            0% {
+                transform: translateX(-50px) rotate(-30deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .computer-move {
+            animation: computerMove 0.7s ease-out;
+        }
+
+        @keyframes computerMove {
+            0% {
+                transform: translateX(50px) rotate(30deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .vs {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #bb86fc;
+            text-shadow: 0 0 15px rgba(187, 134, 252, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            animation: pulseVs 2s infinite;
+        }
+
+        @keyframes pulseVs {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(187, 134, 252, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                text-shadow: 0 0 20px rgba(187, 134, 252, 0.9);
+            }
+            100% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(187, 134, 252, 0.7);
+            }
+        }
+
+        .result {
+            font-size: 1.7rem;
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(13, 43, 72, 0.7);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .win {
+            color: #4db6ac;
+            text-shadow: 0 0 10px rgba(77, 182, 172, 0.7);
+            box-shadow: 0 0 20px rgba(77, 182, 172, 0.4);
+        }
+
+        .lose {
+            color: #ff5252;
+            text-shadow: 0 0 10px rgba(255, 82, 82, 0.7);
+            box-shadow: 0 0 20px rgba(255, 82, 82, 0.4);
+        }
+
+        .draw {
+            color: #64b5f6;
+            text-shadow: 0 0 10px rgba(100, 181, 246, 0.7);
+            box-shadow: 0 0 20px rgba(100, 181, 246, 0.4);
+        }
+
+        .final-result {
+            font-size: 2.2rem;
+            margin: 25px 0;
+            padding: 25px;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #1e3b64, #122e57);
+            color: #e0f7fa;
+            display: none;
+            position: relative;
+            z-index: 1;
+            animation: zoomIn 0.8s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            text-shadow: 0 0 10px rgba(187, 134, 252, 0.7);
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .play-again {
+            background: linear-gradient(145deg, #4db6ac, #26a69a);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.4s;
+            display: none;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 8px 20px rgba(77, 182, 172, 0.4);
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-again::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .play-again:hover::before {
+            left: 100%;
+        }
+
+        .play-again:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(77, 182, 172, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .choices {
+                gap: 15px;
+            }
+            
+            .choice {
+                width: 90px;
+                height: 90px;
+                font-size: 2.8rem;
+            }
+            
+            .moves-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .move-box {
+                width: 90%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .score {
+                padding: 12px 20px;
+                min-width: 100px;
+            }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            z-index: 2;
+            animation: confettiFall 5s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(1000px) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="container">
+        <h1>Stellar RPS</h1>
+        
+        <div class="score-board">
+            <div class="score">
+                <div>Player</div>
+                <div id="player-score">0</div>
+            </div>
+            <div class="score">
+                <div>Round</div>
+                <div id="round">1/5</div>
+            </div>
+            <div class="score">
+                <div>Computer</div>
+                <div id="computer-score">0</div>
+            </div>
+        </div>
+        
+        <div class="round-info">Choose your move!</div>
+        
+        <div class="choices">
+            <div class="choice" data-choice="rock">✊</div>
+            <div class="choice" data-choice="paper">✋</div>
+            <div class="choice" data-choice="scissors">✌️</div>
+        </div>
+        
+        <div class="moves-container">
+            <div class="move-box">
+                <div class="move-title">Your Move</div>
+                <div class="move-icon" id="player-move">-</div>
+            </div>
+            
+            <div class="vs">VS</div>
+            
+            <div class="move-box">
+                <div class="move-title">Computer's Move</div>
+                <div class="move-icon" id="computer-move">-</div>
+            </div>
+        </div>
+        
+        <div class="result" id="result"></div>
+        <div class="final-result" id="final-result"></div>
+        <button class="play-again" id="play-again">Play Again</button>
+    </div>
+
+    <script>
+        // Game state variables
+        let playerScore = 0;
+        let computerScore = 0;
+        let currentRound = 1;
+        const totalRounds = 5;
+        let gameEnded = false;
+
+        // DOM elements
+        const playerScoreElement = document.getElementById('player-score');
+        const computerScoreElement = document.getElementById('computer-score');
+        const roundElement = document.getElementById('round');
+        const resultElement = document.getElementById('result');
+        const finalResultElement = document.getElementById('final-result');
+        const playAgainButton = document.getElementById('play-again');
+        const playerMoveElement = document.getElementById('player-move');
+        const computerMoveElement = document.getElementById('computer-move');
+        const choices = document.querySelectorAll('.choice');
+        const roundInfoElement = document.querySelector('.round-info');
+        const starsContainer = document.getElementById('stars');
+
+        // Sound effects
+        const sounds = {
+            win: new Audio('assets/win.mp3'),
+            lose: new Audio('assets/lose.mp3'),
+            draw: new Audio('assets/draw.mp3'),
+            click: new Audio('assets/click.mp3')
+        };
+
+        // Create stars for the background
+        function createStars() {
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+            
+            // Create shooting stars
+            setInterval(() => {
+                createShootingStar();
+            }, 2000);
+        }
+        
+        // Create a shooting star
+        function createShootingStar() {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = Math.random() * 20 + '%';
+            shootingStar.style.top = Math.random() * 20 + '%';
+            shootingStar.style.width = Math.random() * 100 + 50 + 'px';
+            document.body.appendChild(shootingStar);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                shootingStar.remove();
+            }, 3000);
+        }
+
+        // Emojis for moves
+        const moveEmojis = {
+            rock: '✊',
+            paper: '✋',
+            scissors: '✌️'
+        };
+
+        // Event listeners for player choices
+        choices.forEach(choice => {
+            choice.addEventListener('click', () => {
+                if (gameEnded) return;
+                sounds.click.currentTime = 0; // rewind if played rapidly
+                sounds.click.play();
+                
+                // Remove selected class from all choices
+                choices.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked choice
+                choice.classList.add('selected');
+                
+                // Get player's choice
+                const playerChoice = choice.getAttribute('data-choice');
+                
+                // Play the round
+                playRound(playerChoice);
+            });
+        });
+
+        // Play again button
+        playAgainButton.addEventListener('click', resetGame);
+
+        // Function to generate computer's move
+        function getComputerChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            const randomIndex = Math.floor(Math.random() * 3);
+            return choices[randomIndex];
+        }
+
+        // Function to play a round
+        function playRound(playerChoice) {
+            // Get computer's choice
+            const computerChoice = getComputerChoice();
+            
+            // Update move displays with animations
+            playerMoveElement.textContent = moveEmojis[playerChoice];
+            playerMoveElement.classList.remove('player-move');
+            void playerMoveElement.offsetWidth; // Trigger reflow
+            playerMoveElement.classList.add('player-move');
+            
+            computerMoveElement.textContent = moveEmojis[computerChoice];
+            computerMoveElement.classList.remove('computer-move');
+            void computerMoveElement.offsetWidth; // Trigger reflow
+            computerMoveElement.classList.add('computer-move');
+            
+            // Determine the winner
+            let result = '';
+            
+            if (playerChoice === computerChoice) {
+                result = 'draw';
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = 'win';
+                playerScore++;
+            } else {
+                result = 'lose';
+                computerScore++;
+            }
+            
+            // Update scores
+            playerScoreElement.textContent = playerScore;
+            computerScoreElement.textContent = computerScore;
+            
+            // Display result
+            displayResult(result, playerChoice, computerChoice);
+            
+            // Move to next round
+            currentRound++;
+            
+            // Fix for round display - don't go beyond totalRounds
+            const displayRound = Math.min(currentRound, totalRounds);
+            roundElement.textContent = `${displayRound}/${totalRounds}`;
+            
+            // Check if game has ended
+            if (currentRound > totalRounds) {
+                endGame();
+            } else {
+                roundInfoElement.textContent = `Choose your move for round ${currentRound}!`;
+            }
+        }
+
+        // Function to display round result
+        function displayResult(result, playerChoice, computerChoice) {
+            resultElement.className = 'result';
+            switch (result) {
+                case 'win':
+                    resultElement.classList.add('win');
+                    resultElement.textContent = `You win! ${capitalizeFirstLetter(playerChoice)} beats ${computerChoice}.`;
+                    createConfetti();
+                    sounds.win.currentTime = 0;
+                    sounds.win.play();
+                    break;
+                case 'lose':
+                    resultElement.classList.add('lose');
+                    resultElement.textContent = `You lose! ${capitalizeFirstLetter(computerChoice)} beats ${playerChoice}.`;
+                    sounds.lose.currentTime = 0;
+                    sounds.lose.play();
+                    break;
+                case 'draw':
+                    resultElement.classList.add('draw');
+                    resultElement.textContent = `It's a draw! Both chose ${playerChoice}.`;
+                    sounds.draw.currentTime = 0;
+                    sounds.draw.play();
+                    break;
+            }
+        }
+
+        // Function to end the game
+        function endGame() {
+            gameEnded = true;
+            
+            // Determine final result
+            let finalResult = '';
+            if (playerScore > computerScore) {
+                finalResult = 'Congratulations! You won the game!';
+                finalResultElement.style.background = 'linear-gradient(145deg, #1e3b64, #122e57)';
+                createConfetti();
+            } else if (playerScore < computerScore) {
+                finalResult = 'Game over! Computer won the game.';
+                finalResultElement.style.background = 'linear-gradient(145deg, #1e3b64, #122e57)';
+            } else {
+                finalResult = 'The game ended in a tie!';
+                finalResultElement.style.background = 'linear-gradient(145deg, #1e3b64, #122e57)';
+            }
+            
+            // Display final result
+            finalResultElement.textContent = finalResult;
+            finalResultElement.style.display = 'block';
+            
+            // Show play again button
+            playAgainButton.style.display = 'block';
+            
+            roundInfoElement.textContent = 'Game Over!';
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            currentRound = 1;
+            gameEnded = false;
+            
+            // Reset displays
+            playerScoreElement.textContent = playerScore;
+            computerScoreElement.textContent = computerScore;
+            roundElement.textContent = `${currentRound}/${totalRounds}`;
+            resultElement.textContent = '';
+            resultElement.className = 'result';
+            finalResultElement.style.display = 'none';
+            playAgainButton.style.display = 'none';
+            playerMoveElement.textContent = '-';
+            computerMoveElement.textContent = '-';
+            roundInfoElement.textContent = 'Choose your move!';
+            
+            // Remove selected class from choices
+            choices.forEach(choice => choice.classList.remove('selected'));
+        }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Function to create confetti
+        function createConfetti() {
+            const colors = ['#64b5f6', '#bb86fc', '#4db6ac', '#ff5252', '#ffab40', '#ff4081'];
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(confetti);
+                
+                // Remove confetti after animation completes
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        // Initialize the game
+        createStars();
+    </script>
+</body>
+</html>
