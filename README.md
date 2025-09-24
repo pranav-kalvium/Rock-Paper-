@@ -59,7 +59,7 @@ Safari
 Edge
 
 Development
-The game was developed using GitHub Copilot with the following prompts:
+The game is developed using GitHub Copilot with the following prompts:
 
 "Create a 5-round Rock Paper Scissors game with HTML, CSS, and JavaScript"
 
@@ -72,3 +72,5 @@ The game was developed using GitHub Copilot with the following prompts:
 License
 
 This project is open source and available under the MIT License.
+Have a good day.
+
