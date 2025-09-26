@@ -15,7 +15,7 @@ Final result display after 5 rounds
 
 Play Again button to reset the game
 
-Responsive design that works on desktop and mobile devices
+Responsive design that works on desktop and mobile devices;
 
 Clean, modern UI with intuitive controls
 
@@ -73,4 +73,5 @@ License
 
 This project is open source and available under the MIT License.
 Have a good day.
+
 
